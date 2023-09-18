@@ -1,6 +1,7 @@
 # Block Based Hydroponic Scheduling
 ## Group Members:
 - [x] 1.  [Michael Bishai]()
+- [x] 2.  [Marco Costa]() 
 
 ## Project Description:
 This project looks into writing software that converts functions done by an arduino
