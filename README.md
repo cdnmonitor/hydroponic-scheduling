@@ -20,3 +20,6 @@ The way the programs work require a knowledge of how parsing works, and basic al
 Every single asset requires being activated and deactivated, and requires a sense or order that has to be followed.
 Compilation is very important in the case of this project, as not writing proper functionality for sensors and pins which
 can then be defied by manual user lack of knowledge can risk in the destruction of the hardware and decalibration of the sensors.
+
+## Testing
+We are both close to an electronic supply shop and have the hardware necessary to test the project. If we are unable to test the project, we will use a simulator to test the project. The simulator we have chosen is Wowiki https://wokwi.com/projects/new/esp32.
