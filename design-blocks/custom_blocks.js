@@ -71,6 +71,16 @@ Blockly.Blocks['number'] = {
     }
 };
 
+Blockly.Blocks['print'] = {
+    init: function() {
+        this.appendValueInput("PRINT")
+            .setCheck(null)
+            .appendField("print");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(260);
+    }
+};
 
 Blockly.JavaScript['check_ph'] = function(block) {
     return 'sendPostRequest("/api/checkPH");\n';
@@ -99,4 +109,9 @@ Blockly.JavaScript['read_sensor'] = function(block) {
 Blockly.JavaScript['number'] = function(block) {
     var number = block.getFieldValue('NUM');
     return [number, Blockly.JavaScript.ORDER_ATOMIC];
+};
+
+Blockly.JavaScript['print'] = function(block) {
+    var value_to_print = Blockly.JavaScript.valueToCode(block, 'PRINT', Blockly.JavaScript.ORDER_ATOMIC);
+    return 'printToOutput(' + value_to_print + ');\n';
 };

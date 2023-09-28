@@ -19,3 +19,25 @@ body {
     display: flex;
     gap: 10px;
 }
+
+#outputDiv {
+    border: 1px solid black;
+    padding: 10px;
+    height: 100px;
+    width: 80vw;
+    margin: 10px auto; /* centers the div with some space above and below */
+    overflow-y: scroll;
+    white-space: pre-wrap; /* ensures that the content wraps */
+}
+
+
+
+#runButton {
+    display: block;
+    margin-right: auto;
+    margin-left: 125px;
+    padding: 8px 16px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
