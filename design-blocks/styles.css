@@ -30,8 +30,6 @@ body {
     white-space: pre-wrap; /* ensures that the content wraps */
 }
 
-
-
 #runButton {
     display: block;
     margin-right: auto;

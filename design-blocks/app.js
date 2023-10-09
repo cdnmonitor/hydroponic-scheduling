@@ -28,7 +28,7 @@ function printToOutput(value) {
 document.getElementById('runCode').addEventListener('click', function() {
     // Generate JavaScript code from Blockly workspace
     var generatedCode = Blockly.JavaScript.workspaceToCode(workspace);
-
+    document.getElementById("outputDiv").innerHTML = "";
     try {
         // Evaluate (run) the generated code
         eval(generatedCode);
