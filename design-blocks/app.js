@@ -68,3 +68,20 @@ function asyncYielder(genFunc) {
     return handle(gen.next());
 }
 
+
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById('saveCode').addEventListener('click', function() {
+        let content = document.getElementById('newOutputDiv').textContent;
+        let encodedUri = encodeURIComponent(content);
+        let dataUri = 'data:text/plain;charset=utf-8,' + encodedUri;
+        
+        let link = document.createElement('a');
+        link.setAttribute('href', dataUri);
+        link.setAttribute('download', 'outputCode.txt');
+        document.body.appendChild(link);  // Required for Firefox
+        
+        link.click();  // This will download the text as an outputCode.txt file
+
+        document.body.removeChild(link);  // Clean up after download
+    });
+});
