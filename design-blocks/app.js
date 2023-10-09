@@ -13,7 +13,7 @@ function sendPostRequest(apiEndpoint) {
     })
     .catch(error => {
         const outputDiv = document.getElementById("outputDiv");
-        outputDiv.innerHTML += `Error: ${error.message}<br>`;
+        outputDiv.innerHTML += `${error.message}<br>`;
         throw error;
     });
 }
@@ -24,6 +24,7 @@ function printToOutput(value) {
     var currentContent = outputDiv.innerHTML;
     outputDiv.innerHTML = currentContent + value + "<br/>";
 }
+
 document.getElementById('runCode').addEventListener('click', function() {
     // Generate JavaScript code from Blockly workspace
     var generatedCode = Blockly.JavaScript.workspaceToCode(workspace);
@@ -52,3 +53,18 @@ document.getElementById('generateCode').addEventListener('click', function() {
     // Display the generated code in the newOutputDiv
     document.getElementById("newOutputDiv").innerHTML = `<pre>${generatedCode}</pre>`;
 });
+
+function asyncYielder(genFunc) {
+    const gen = genFunc();
+
+    function handle(result) {
+        if (result.done) return result.value;
+        return Promise.resolve(result.value).then(
+            res => handle(gen.next(res)),
+            err => handle(gen.throw(err))
+        );
+    }
+
+    return handle(gen.next());
+}
+
