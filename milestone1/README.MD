@@ -1,4 +1,4 @@
-# Working logic and POST requests
+# Working logic and web requests
 Using Michael's API and blockly, you can now generate code to read, in real time, the output from Michael's arduino.
 Furthermore, the logic now works and waits for a response before continuing to the next block.
 
