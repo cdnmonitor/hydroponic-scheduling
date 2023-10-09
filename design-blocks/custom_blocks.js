@@ -1,9 +1,11 @@
-// Check pH
+
+
 Blockly.Blocks['check_ph'] = {
     init: function() {
         this.appendDummyInput()
             .appendField("Check pH Level");
-        this.setOutput(true, "Number");
+        this.setNextStatement(true);  // Allows blocks to be placed after this one.
+        this.setPreviousStatement(true);  // Allows blocks to be placed before this one.
         this.setColour(60);
     }
 };
@@ -83,7 +85,10 @@ Blockly.Blocks['print'] = {
 };
 
 Blockly.JavaScript['check_ph'] = function(block) {
-    return 'sendPostRequest("/api/checkPH");\n';
+    var apiEndpoint = "http://23.243.138.154/read_ph";
+    
+    var code = `await sendPostRequest("${apiEndpoint}");\n`; // The \n ensures sequential blocks are on new lines.
+    return code;
 };
 
 Blockly.JavaScript['check_water_level'] = function(block) {
@@ -91,7 +96,10 @@ Blockly.JavaScript['check_water_level'] = function(block) {
 };
 
 Blockly.JavaScript['check_water_temperature'] = function(block) {
-    return 'sendPostRequest("/api/checkWaterTemperature");\n';
+    var apiEndpoint = "http://23.243.138.154/read _temp";
+    
+    var code = `await sendPostRequest("${apiEndpoint}");\n`; // The \n ensures sequential blocks are on new lines.
+    return code;
 };
 
 Blockly.JavaScript['enable_relay'] = function(block) {
