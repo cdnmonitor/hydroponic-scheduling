@@ -1,3 +1,7 @@
+#Working logic and POST requests
+Using Michael's API and blockly, you can now generate code to read, in real time, the output from Michael's arduino.
+Furthermore, the logic now works and waits for a response before continuing to the next block.
+
 # How to test hydroponic system API:
 The api is currenly configured to run the following commands:
 - read_ph - uses an atlas scientific pH sensor to read the pH of the soil
