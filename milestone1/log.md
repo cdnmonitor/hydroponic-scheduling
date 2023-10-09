@@ -20,7 +20,7 @@
 ## Marco Costa did the following:
 - Added generate and save code buttons
 - Updated and added blockly library to fix errors reguarding default blocks
-- Wrote POST requests and asynchronous fetching functions for several blocks
+- Wrote web requests and asynchronous fetching functions for several blocks
 - Transitioned several blocks to accept object promises which is not supported by blockly by default
 
 ## AI Used:
