@@ -20,7 +20,7 @@ const uint8_t bufferlen = 32;
 char user_data[bufferlen];                     
 
 const char* ssid = "SpectrumSetup-EF";
-const char* password = "secretfoobarpassword";
+const char* password = "lightsnake383";
 
 WiFiServer server(80);
 
