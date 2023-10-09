@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", function() {
         
         let link = document.createElement('a');
         link.setAttribute('href', dataUri);
-        link.setAttribute('download', 'outputCode.txt');
+        link.setAttribute('download', 'outputCode.js');
         document.body.appendChild(link);  // Required for Firefox
         
         link.click();  // This will download the text as an outputCode.txt file
