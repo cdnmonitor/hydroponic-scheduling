@@ -49,7 +49,7 @@ window.onerror = function (msg, url, lineNo, columnNo, error) {
 document.getElementById('generateCode').addEventListener('click', function() {
     // Generate JavaScript code from Blockly workspace
     var generatedCode = Blockly.JavaScript.workspaceToCode(workspace);
-    
+    generatedCode = generatedCode.replace(/;\s*$/, '');  // This removes a semi-colon at the end of the code.
     // Display the generated code in the newOutputDiv
     document.getElementById("newOutputDiv").innerHTML = `<pre>${generatedCode}</pre>`;
 });

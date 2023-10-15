@@ -71,6 +71,16 @@ Blockly.Blocks['number'] = {
     }
 };
 
+Blockly.Blocks['string'] = {
+    init: function() {
+        this.appendDummyInput()
+            .appendField(new Blockly.FieldTextInput("text"), "TXT");
+        this.setOutput(true, "String");
+        this.setColour(310);  // You can set any other color code if you want
+    }
+    
+};
+
 Blockly.Blocks['print'] = {
     init: function () {
         this.appendValueInput("PRINT")
@@ -98,62 +108,139 @@ Blockly.Blocks['compare_values'] = {
     }
 };
 
-
-var apiEndpoint = "http://23.243.138.154";
-Blockly.JavaScript['check_ph'] = function (block) {
-    var code = `(async function() {
-        try {
-            let response = await fetch("${apiEndpoint}/read_ph");
-            if (response.ok) {
-                return parseFloat(await response.text());
-            }
-        } catch (error) {
-            console.error('Error fetching pH:', error);
+Blockly.Blocks['create_number_variable_custom'] = {
+    init: function() {
+        this.appendValueInput("VALUE")
+            .setCheck("Number")
+            .appendField("create NUMBER variable")
+            .appendField(new Blockly.FieldTextInput("variableName"), "VAR_NAME")
+            .appendField("with value");
+        this.setColour(290);  
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+    },
+    // Define the default shape for the block using mutations
+    mutationToDom: function() {
+        var container = document.createElement('mutation');
+        container.setAttribute('has_number', 'true');
+        return container;
+    },
+    // Apply the mutation to the block
+    domToMutation: function(xmlElement) {
+        var hasNumber = (xmlElement.getAttribute('has_number') === 'true');
+        if (hasNumber) {
+            this.appendNumber();
         }
-        return -1;  // default in case of errors
-    })()`;
-    return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
+    },
+    // Append the 'number' block by default
+    appendNumber: function() {
+        var numberBlock = this.workspace.newBlock('number');
+        numberBlock.initSvg();
+        numberBlock.render();
+        this.getInput('VALUE').connection.connect(numberBlock.outputConnection);
+    }
+};
+
+Blockly.Blocks['create_string_variable_custom'] = {
+    init: function() {
+        this.appendValueInput("VALUE")
+            .setCheck("String")
+            .appendField("create STRING variable")
+            .appendField(new Blockly.FieldTextInput("variableName"), "VAR_NAME")
+            .appendField("with value");
+        this.setColour(300);  
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+    },
+    // Define the default shape for the block using mutations
+    mutationToDom: function() {
+        var container = document.createElement('mutation');
+        container.setAttribute('has_string', 'true');
+        return container;
+    },
+    // Apply the mutation to the block
+    domToMutation: function(xmlElement) {
+        var hasString = (xmlElement.getAttribute('has_string') === 'true');
+        if (hasString) {
+            this.appendString();
+        }
+    },
+    // Append the 'string' block by default
+    appendString: function() {
+        var stringBlock = this.workspace.newBlock('string');
+        stringBlock.initSvg();
+        stringBlock.render();
+        this.getInput('VALUE').connection.connect(stringBlock.outputConnection);
+    }
 };
 
 
+Blockly.Blocks['create_string_variable'] = {
+    init: function() {
+        this.appendValueInput("VALUE")
+            .setCheck("String")
+            .appendField("create STRING variable")
+            .appendField(new Blockly.FieldTextInput("variableName"), "VAR_NAME")
+            .appendField("with value");
+        this.setColour(300);  
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+    }
+};
+
+
+Blockly.Blocks['create_string_variable'] = {
+    init: function() {
+        this.appendValueInput("VALUE")
+            .setCheck("String")
+            .appendField("create STRING variable")
+            .appendField(new Blockly.FieldVariable("variable"), "VAR_NAME")
+            .appendField("with value");
+        this.setColour(290);  // Adjust color as needed
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+    }
+};
+
+Blockly.Blocks['create_string_variable'] = {
+    init: function() {
+        this.appendValueInput("VALUE")
+            .setCheck("String")
+            .appendField("create STRING variable")
+            .appendField(new Blockly.FieldVariable("variable"), "VAR_NAME")
+            .appendField("with value");
+        this.setColour(290);  // Adjust color as needed
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+    }
+};
+
+Blockly.JavaScript['check_ph'] = function (block) {
+    var code = `check_ph`;
+    return [code, Blockly.JavaScript.ORDER_ATOMIC];
+};
 
 Blockly.JavaScript['check_water_level'] = function (block) {
-    return 'sendPostRequest("/api/checkWaterLevel");\n';
+    return 'check_water_level\n';
 };
 
 Blockly.JavaScript['check_water_temperature'] = function (block) {
-    var code = `(async function() {
-        try {
-            let response = await fetch("${apiEndpoint}/read_temp");
-            if (response.ok) {
-                return parseFloat(await response.text());
-            }
-        } catch (error) {
-            console.error('Error fetching temperature:', error);
-        }
-        return -1;  // default in case of errors
-    })()`;
-    return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
+    var code = `check_water_temp`;
+    return [code, Blockly.JavaScript.ORDER_ATOMIC];
 };
 
-
 Blockly.JavaScript['enable_relay'] = function (block) {
-    var code = `(async function() {
-        try {
-            await fetch("${apiEndpoint}/enable_relay");
-        } catch (error) {
-            console.error('Error enabling relay:', error);
-        }
-    })();\n`;  // Using "\n" to ensure the next block (if any) starts on a new line
+    var code = `enable_relay\n`;  // Using "\n" to ensure the next block (if any) starts on a new line
     return code;
 };
 
 Blockly.JavaScript['disable_relay'] = function (block) {
-    return 'sendPostRequest("/api/disableRelay");\n';
+    var code = `disable_relay\n`;  // Using "\n" to ensure the next block (if any) starts on a new line
+    return code;
 };
 
 Blockly.JavaScript['read_sensor'] = function (block) {
-    return 'sendPostRequest("/api/readSensor");\n';
+    return 'check_sensor\n';
 };
 
 Blockly.JavaScript['number'] = function (block) {
@@ -161,18 +248,17 @@ Blockly.JavaScript['number'] = function (block) {
     return [number, Blockly.JavaScript.ORDER_ATOMIC];
 };
 
+Blockly.JavaScript['string'] = function(block) {
+    var text = block.getFieldValue('TXT');
+    // We need to wrap the string in quotes to make it a valid string in code.
+    return ['"' + text + '"', Blockly.JavaScript.ORDER_ATOMIC];
+};
+
 Blockly.JavaScript['print'] = function (block) {
     var value_to_print = Blockly.JavaScript.valueToCode(block, 'PRINT', Blockly.JavaScript.ORDER_ATOMIC);
 
-    // Check if the value_to_print is a Promise, if so, await it.
     var code = `
-        (async function() {
-            let value = ${value_to_print};
-            if (value instanceof Promise) {
-                value = await value;
-            }
-            printToOutput(value);
-        })();\n`;
+    print \"${value_to_print}\"\n`;
 
     return code;
 };
@@ -195,31 +281,21 @@ Blockly.JavaScript['compare_values'] = function(block) {
 
     // Handle the comparison in a way that waits for promises
     var code = `
-    (async function() {
-        let resolvedValue1 = ${value_value1};
-        if(resolvedValue1 instanceof Promise) {
-            resolvedValue1 = await resolvedValue1;
-        }
-
-        let resolvedValue2 = ${value_value2};
-        if(resolvedValue2 instanceof Promise) {
-            resolvedValue2 = await resolvedValue2;
-        }
-
-        return resolvedValue1 ${op} resolvedValue2;
-    })()
+        ${value_value1} ${op} ${value_value2}
     `;
 
     return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
 };
 
-/*Blockly.JavaScript['print'] = function(block) {
-    var value_to_print = Blockly.JavaScript.valueToCode(block, 'PRINT', Blockly.JavaScript.ORDER_ATOMIC);
-    var code = `
-        (async function() {
-            let resolvedValue = await ${value_to_print}; // Resolve promise
-            printToOutput(resolvedValue);
-        })();\n`;
-    return code;
-};*/
+Blockly.JavaScript['create_number_variable_custom'] = function(block) {
+    var variable_name = block.getFieldValue('VAR_NAME');
+    var value = Blockly.JavaScript.valueToCode(block, 'VALUE', Blockly.JavaScript.ORDER_ATOMIC);
+    return 'num ' + variable_name + '(' + value + ')\n';
+};
+
+Blockly.JavaScript['create_string_variable_custom'] = function(block) {
+    var variable_name = block.getFieldValue('VAR_NAME');
+    var value = Blockly.JavaScript.valueToCode(block, 'VALUE', Blockly.JavaScript.ORDER_ATOMIC);
+    return 'str ' + variable_name + '(' + value + ')\n';
+};
 
