@@ -71,7 +71,7 @@ Blockly.Blocks['number'] = {
     }
 };
 
-Blockly.Blocks['string'] = {
+Blockly.Blocks['custom_string'] = {
     init: function() {
         this.appendDummyInput()
             .appendField(new Blockly.FieldTextInput("text"), "TXT");

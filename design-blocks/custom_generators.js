@@ -32,7 +32,7 @@ Blockly.JavaScript['number'] = function (block) {
     return [number, Blockly.JavaScript.ORDER_ATOMIC];
 };
 
-Blockly.JavaScript['string'] = function(block) {
+Blockly.JavaScript['custom_string'] = function(block) {
     var text = block.getFieldValue('TXT');
     // We need to wrap the string in quotes to make it a valid string in code.
     return ['"' + text + '"', Blockly.JavaScript.ORDER_ATOMIC];
