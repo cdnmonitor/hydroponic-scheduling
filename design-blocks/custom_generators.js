@@ -83,3 +83,40 @@ Blockly.JavaScript['create_string_variable_custom'] = function(block) {
     return 'str ' + variable_name + '(' + value + ')\n';
 };
 
+Blockly.JavaScript['set_number_variable'] = function(block) {
+    var variable_name = block.getFieldValue('VAR_NAME');
+    var value = Blockly.JavaScript.valueToCode(block, 'VALUE', Blockly.JavaScript.ORDER_ATOMIC);
+    return variable_name + ' = ' + value + ';\n';
+};
+
+Blockly.JavaScript['set_string_variable'] = function(block) {
+    var variable_name = block.getFieldValue('VAR_NAME');
+    var value = Blockly.JavaScript.valueToCode(block, 'VALUE', Blockly.JavaScript.ORDER_ATOMIC);
+    return variable_name + ' = ' + value + ';\n';
+};
+
+Blockly.JavaScript['get_string_variable'] = function(block) {
+    var variable_name = block.getFieldValue('VAR_NAME');
+    return [variable_name, Blockly.JavaScript.ORDER_ATOMIC];
+};
+
+Blockly.JavaScript['get_number_variable'] = function(block) {
+    var variable_name = block.getFieldValue('VAR_NAME');
+    return [variable_name, Blockly.JavaScript.ORDER_ATOMIC];
+};
+
+Blockly.JavaScript['custom_for_loop'] = function(block) {
+    var variable_name = block.getFieldValue('VAR_NAME');
+    var start_value = Blockly.JavaScript.valueToCode(block, 'START', Blockly.JavaScript.ORDER_ATOMIC);
+    var condition_value = Blockly.JavaScript.valueToCode(block, 'CONDITION', Blockly.JavaScript.ORDER_ATOMIC);
+    
+    var loopContent = Blockly.JavaScript.statementToCode(block, 'DO');
+
+    return 'for (var ' + variable_name + ' = ' + start_value + '; ' + variable_name + ' < ' + condition_value + '; ' + variable_name + '++) {\n' + loopContent + '}\n';
+};
+
+Blockly.JavaScript['append_strings'] = function(block) {
+    var string1 = Blockly.JavaScript.valueToCode(block, 'STRING1', Blockly.JavaScript.ORDER_ATOMIC);
+    var string2 = Blockly.JavaScript.valueToCode(block, 'STRING2', Blockly.JavaScript.ORDER_ATOMIC);
+    return [string1 + ' + ' + string2, Blockly.JavaScript.ORDER_ATOMIC];
+};

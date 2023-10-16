@@ -49,7 +49,7 @@ window.onerror = function (msg, url, lineNo, columnNo, error) {
 document.getElementById('generateCode').addEventListener('click', function() {
     // Generate JavaScript code from Blockly workspace
     var generatedCode = Blockly.JavaScript.workspaceToCode(workspace);
-    generatedCode = generatedCode.replace(/;\s*$/, '');  // This removes a semi-colon at the end of the code.
+    generatedCode = generatedCode.replace(/;\s*$/gm, '');
     // Display the generated code in the newOutputDiv
     document.getElementById("newOutputDiv").innerHTML = `<pre>${generatedCode}</pre>`;
 });
@@ -68,7 +68,6 @@ function asyncYielder(genFunc) {
     return handle(gen.next());
 }
 
-
 document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('saveCode').addEventListener('click', function() {
         let content = document.getElementById('newOutputDiv').textContent;
@@ -85,3 +84,4 @@ document.addEventListener("DOMContentLoaded", function() {
         document.body.removeChild(link);  // Clean up after download
     });
 });
+

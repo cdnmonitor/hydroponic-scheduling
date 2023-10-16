@@ -78,7 +78,6 @@ Blockly.Blocks['custom_string'] = {
         this.setOutput(true, "String");
         this.setColour(310);  // You can set any other color code if you want
     }
-    
 };
 
 Blockly.Blocks['print'] = {
@@ -174,43 +173,110 @@ Blockly.Blocks['create_string_variable_custom'] = {
     }
 };
 
+Blockly.Blocks['set_number_variable'] = {
+    init: function() {
+        this.appendValueInput("VALUE")
+            .setCheck("Number")
+            .appendField("set NUMBER variable")
+            .appendField(new Blockly.FieldTextInput("variableName"), "VAR_NAME")
+            .appendField("to value");
+        this.setColour(290);  
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+    }
+};
 
-Blockly.Blocks['create_string_variable'] = {
+Blockly.Blocks['set_string_variable'] = {
     init: function() {
         this.appendValueInput("VALUE")
             .setCheck("String")
-            .appendField("create STRING variable")
+            .appendField("set STRING variable")
             .appendField(new Blockly.FieldTextInput("variableName"), "VAR_NAME")
-            .appendField("with value");
+            .appendField("to value");
         this.setColour(300);  
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
     }
 };
 
-
-Blockly.Blocks['create_string_variable'] = {
+Blockly.Blocks['get_string_variable'] = {
     init: function() {
-        this.appendValueInput("VALUE")
-            .setCheck("String")
-            .appendField("create STRING variable")
-            .appendField(new Blockly.FieldVariable("variable"), "VAR_NAME")
-            .appendField("with value");
-        this.setColour(290);  // Adjust color as needed
+        this.appendDummyInput()
+            .appendField("get STRING variable")
+            .appendField(new Blockly.FieldTextInput("variableName"), "VAR_NAME");
+        this.setColour(300);
+        this.setOutput(true, "String");
+    }
+};
+
+Blockly.Blocks['get_number_variable'] = {
+    init: function() {
+        this.appendDummyInput()
+            .appendField("get NUMBER variable")
+            .appendField(new Blockly.FieldTextInput("variableName"), "VAR_NAME");
+        this.setColour(290);
+        this.setOutput(true, "Number");
+    }
+};
+
+Blockly.Blocks['custom_for_loop'] = {
+    init: function() {
+        this.appendValueInput("INITIAL")
+            .setCheck(null)
+            .appendField("FOR");
+
+        this.appendValueInput("CONDITION")
+            .setCheck("Boolean")
+            .appendField("UNTIL");
+
+        this.appendValueInput("INCREMENT")
+            .setCheck(null)
+            .appendField("STEP");
+
+        this.appendStatementInput("DO")
+            .setCheck(null)
+            .appendField("DO");
+
+        this.appendDummyInput()
+            .appendField("END FOR");
+
+        this.setInputsInline(true);
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(120);
+    }
+};
+
+Blockly.Blocks['custom_for_loop'] = {
+    init: function() {
+        this.appendValueInput("START")
+            .setCheck("Number")
+            .appendField("for variable")
+            .appendField(new Blockly.FieldTextInput("i"), "VAR_NAME")
+            .appendField("from");
+            
+        this.appendValueInput("CONDITION")
+            .setCheck("Number")
+            .appendField("to");
+        
+        this.appendStatementInput("DO")
+            .appendField("do");
+        
+        this.setColour(120);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
     }
 };
 
-Blockly.Blocks['create_string_variable'] = {
+Blockly.Blocks['append_strings'] = {
     init: function() {
-        this.appendValueInput("VALUE")
+        this.appendValueInput("STRING1")
             .setCheck("String")
-            .appendField("create STRING variable")
-            .appendField(new Blockly.FieldVariable("variable"), "VAR_NAME")
-            .appendField("with value");
-        this.setColour(290);  // Adjust color as needed
-        this.setPreviousStatement(true, null);
-        this.setNextStatement(true, null);
+            .appendField("append");
+        this.appendValueInput("STRING2")
+            .setCheck("String")
+            .appendField("with");
+        this.setColour(310);
+        this.setOutput(true, "String");
     }
 };
