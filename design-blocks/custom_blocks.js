@@ -27,7 +27,6 @@ Blockly.Blocks['check_water_temperature'] = {
     }
 };
 
-
 Blockly.Blocks['enable_relay'] = {
     init: function () {
         this.appendDummyInput()
@@ -218,55 +217,23 @@ Blockly.Blocks['get_number_variable'] = {
         this.setOutput(true, "Number");
     }
 };
-
-Blockly.Blocks['custom_for_loop'] = {
+Blockly.Blocks['for_loop_custom'] = {
     init: function() {
-        this.appendValueInput("INITIAL")
-            .setCheck(null)
-            .appendField("FOR");
-
-        this.appendValueInput("CONDITION")
-            .setCheck("Boolean")
-            .appendField("UNTIL");
-
-        this.appendValueInput("INCREMENT")
-            .setCheck(null)
-            .appendField("STEP");
-
-        this.appendStatementInput("DO")
-            .setCheck(null)
-            .appendField("DO");
-
         this.appendDummyInput()
-            .appendField("END FOR");
-
-        this.setInputsInline(true);
-        this.setPreviousStatement(true, null);
-        this.setNextStatement(true, null);
-        this.setColour(120);
-    }
-};
-
-Blockly.Blocks['custom_for_loop'] = {
-    init: function() {
-        this.appendValueInput("START")
-            .setCheck("Number")
-            .appendField("for variable")
-            .appendField(new Blockly.FieldTextInput("i"), "VAR_NAME")
-            .appendField("from");
+            .appendField("for")
+            .appendField(new Blockly.FieldTextInput("variableName1"), "VAR_FROM")
+            .appendField("to")
+            .appendField(new Blockly.FieldTextInput("variableName2"), "VAR_TO");
             
-        this.appendValueInput("CONDITION")
-            .setCheck("Number")
-            .appendField("to");
-        
         this.appendStatementInput("DO")
             .appendField("do");
-        
-        this.setColour(120);
+
+        this.setColour(120);  
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
     }
 };
+
 
 Blockly.Blocks['append_strings'] = {
     init: function() {

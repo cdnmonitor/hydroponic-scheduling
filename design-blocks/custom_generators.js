@@ -105,18 +105,24 @@ Blockly.JavaScript['get_number_variable'] = function(block) {
     return [variable_name, Blockly.JavaScript.ORDER_ATOMIC];
 };
 
-Blockly.JavaScript['custom_for_loop'] = function(block) {
-    var variable_name = block.getFieldValue('VAR_NAME');
-    var start_value = Blockly.JavaScript.valueToCode(block, 'START', Blockly.JavaScript.ORDER_ATOMIC);
-    var condition_value = Blockly.JavaScript.valueToCode(block, 'CONDITION', Blockly.JavaScript.ORDER_ATOMIC);
+Blockly.JavaScript['for_loop_custom'] = function(block) {
+    var variable_from = block.getFieldValue('VAR_FROM');
+    var variable_to = block.getFieldValue('VAR_TO');
     
     var loopContent = Blockly.JavaScript.statementToCode(block, 'DO');
-
-    return 'for (var ' + variable_name + ' = ' + start_value + '; ' + variable_name + ' < ' + condition_value + '; ' + variable_name + '++) {\n' + loopContent + '}\n';
+    
+    var code = 'for ' + variable_from + ' to ' + variable_to + ' {\n' +
+               loopContent + 
+               '}\n';
+    return code;
 };
 
+
 Blockly.JavaScript['append_strings'] = function(block) {
-    var string1 = Blockly.JavaScript.valueToCode(block, 'STRING1', Blockly.JavaScript.ORDER_ATOMIC);
-    var string2 = Blockly.JavaScript.valueToCode(block, 'STRING2', Blockly.JavaScript.ORDER_ATOMIC);
-    return [string1 + ' + ' + string2, Blockly.JavaScript.ORDER_ATOMIC];
+    let values = [Blockly.JavaScript.valueToCode(block, 'STRING1', Blockly.JavaScript.ORDER_ATOMIC),
+                  Blockly.JavaScript.valueToCode(block, 'STRING2', Blockly.JavaScript.ORDER_ATOMIC)];
+    for (let i = 3; i <= block.itemCount_ + 2; i++) {
+        values.push(Blockly.JavaScript.valueToCode(block, 'STRING' + i, Blockly.JavaScript.ORDER_ATOMIC));
+    }
+    return [values.join(' + '), Blockly.JavaScript.ORDER_ATOMIC];
 };
