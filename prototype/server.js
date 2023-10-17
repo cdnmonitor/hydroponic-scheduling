@@ -135,6 +135,30 @@ async function processAction(line, variables) {
             }
         }
     }
+    else if (line.includes(" + ") || line.includes(" - ") || line.includes(" * ") || line.includes(" / ")) {
+        const parts = line.split(" ");
+        const varName = parts[0];
+        const operation = parts[1];
+        const operand = isNaN(parts[2]) ? variables[parts[2]] : parseInt(parts[2]);
+
+        switch (operation) {
+            case "+":
+                variables[varName] += operand;
+                break;
+            case "-":
+                variables[varName] -= operand;
+                break;
+            case "*":
+                variables[varName] *= operand;
+                break;
+            case "/":
+                if (operand === 0) {
+                    throw new Error("Division by zero is not allowed.");
+                }
+                variables[varName] /= operand;
+                break;
+        }
+    }
 }
 
 function evaluateCondition(condition, variables) {
