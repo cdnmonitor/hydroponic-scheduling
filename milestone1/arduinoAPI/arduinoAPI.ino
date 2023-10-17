@@ -1,7 +1,8 @@
-#include <WiFiS3.h>
 #include <DHT.h>
-#include "ph_iso_grav.h"       
-#include "ph_grav.h"             
+#include <WiFiS3.h>
+
+#include "ph_grav.h"
+#include "ph_iso_grav.h"
 #include "rtd_grav.h"
 
 #define WATER_LEVEL_PIN A2
@@ -10,18 +11,17 @@
 #define DHTTYPE DHT11
 DHT dht(DHT11PIN, DHTTYPE);
 
-
 #ifdef USE_PULSE_OUT
-  Gravity_pH_Isolated pH = Gravity_pH_Isolated(A0);         
+Gravity_pH_Isolated pH = Gravity_pH_Isolated(A0);
 #else
-  Gravity_pH pH = Gravity_pH(A0);   
+Gravity_pH pH = Gravity_pH(A0);
 #endif
 
 Gravity_RTD RTD = Gravity_RTD(A1);
 
-uint8_t user_bytes_received = 0;                
-const uint8_t bufferlen = 32;                   
-char user_data[bufferlen];                     
+uint8_t user_bytes_received = 0;
+const uint8_t bufferlen = 32;
+char user_data[bufferlen];
 
 const char* ssid = "SpectrumSetup-EF";
 const char* password = "lightsnake383";
@@ -38,15 +38,19 @@ void setup() {
     Serial.println("Connecting to WiFi...");
   }
   Serial.println("Connected to WiFi");
-  
-  Serial.println(F("Use commands \"CAL,7\", \"CAL,4\", and \"CAL,10\" to calibrate the pH circuit to those respective values"));
+
+  Serial.println(
+      F("Use commands \"CAL,7\", \"CAL,4\", and \"CAL,10\" to calibrate the pH "
+        "circuit to those respective values"));
   Serial.println(F("Use command \"CAL,CLEAR\" to clear the pH calibration"));
-  Serial.println(F("Use command \"CAL,nnn.n\" to calibrate the RTD circuit to a specific temperature\n\"CAL,CLEAR\" clears the RTD calibration"));
-  
-  if(pH.begin()){
+  Serial.println(
+      F("Use command \"CAL,nnn.n\" to calibrate the RTD circuit to a specific "
+        "temperature\n\"CAL,CLEAR\" clears the RTD calibration"));
+
+  if (pH.begin()) {
     Serial.println("Loaded EEPROM for pH");
   }
-  if(RTD.begin()){
+  if (RTD.begin()) {
     Serial.println("Loaded EEPROM for RTD");
   }
 
@@ -71,10 +75,10 @@ void getPublicIP(WiFiClient client) {
     }
 
     String publicIP = http.readStringUntil('\r');
-    publicIP.trim();  
+    publicIP.trim();
 
     Serial.println("Public IP: " + publicIP);
-    
+
     client.println("HTTP/1.1 200 OK");
     client.println("Content-Type: text/plain");
     client.println();
@@ -92,33 +96,30 @@ void getPublicIP(WiFiClient client) {
 
 void parse_cmd(char* string) {
   String cmd = String(string);
-  cmd.toUpperCase(); 
-  
-  if (cmd.startsWith("CAL,7")) {       
-    pH.cal_mid();                                
+  cmd.toUpperCase();
+
+  if (cmd.startsWith("CAL,7")) {
+    pH.cal_mid();
     Serial.println("MID CALIBRATED");
-  }
-  else if (cmd.startsWith("CAL,4")) {            
-    pH.cal_low();                                
+  } else if (cmd.startsWith("CAL,4")) {
+    pH.cal_low();
     Serial.println("LOW CALIBRATED");
-  }
-  else if (cmd.startsWith("CAL,10")) {      
-    pH.cal_high();                               
+  } else if (cmd.startsWith("CAL,10")) {
+    pH.cal_high();
     Serial.println("HIGH CALIBRATED");
-  }
-  else if (cmd.startsWith("CAL,CLEAR")) { 
-    pH.cal_clear();                              
+  } else if (cmd.startsWith("CAL,CLEAR")) {
+    pH.cal_clear();
     Serial.println("CALIBRATION CLEARED");
   }
-  
-  if(cmd.startsWith("CAL")){
+
+  if (cmd.startsWith("CAL")) {
     int index = cmd.indexOf(',');
-    if(index != -1){
-      String param = cmd.substring(index+1, cmd.length());
-      if(param.equals("CLEAR")){
+    if (index != -1) {
+      String param = cmd.substring(index + 1, cmd.length());
+      if (param.equals("CLEAR")) {
         RTD.cal_clear();
         Serial.println("CALIBRATION CLEARED");
-      }else {
+      } else {
         RTD.cal(param.toFloat());
         Serial.println("RTD CALIBRATED");
       }
@@ -131,76 +132,120 @@ void loop() {
   if (client) {
     String request = client.readStringUntil('\r');
     client.flush();
-    
+
     if (request.indexOf("/LED_ON") != -1) {
       digitalWrite(LED_BUILTIN, HIGH);
       client.println("HTTP/1.1 200 OK");
       client.println("Content-Type: text/plain");
       client.println();
       client.println("LED is on");
-    } 
-    else if (request.indexOf("/LED_OFF") != -1) {
+    } else if (request.indexOf("/LED_OFF") != -1) {
       digitalWrite(LED_BUILTIN, LOW);
       client.println("HTTP/1.1 200 OK");
       client.println("Content-Type: text/plain");
       client.println();
       client.println("LED is off");
-    } 
-    else if (request.indexOf("/read_ph") != -1) {
+    } else if (request.indexOf("/read_ph") != -1) {
       float ph_value = pH.read_ph();
       client.println("HTTP/1.1 200 OK");
       client.println("Content-Type: text/plain");
       client.println();
       client.println(ph_value, 2);  // Send pH value only
-    }
-    else if (request.indexOf("/read_temp") != -1) {
+    } else if (request.indexOf("/read_temp") != -1) {
       float temp_value = RTD.read_RTD_temp_C();
       client.println("HTTP/1.1 200 OK");
       client.println("Content-Type: text/plain");
       client.println();
       client.println(temp_value, 2);  // Send temperature value only
-    }
-    else if (request.indexOf("/get_public_IP") != -1){
+    } else if (request.indexOf("/get_public_IP") != -1) {
       getPublicIP(client);
-    }
-    else if (request.indexOf("/read_DHT") != -1) {
-      float humidity = dht.readHumidity();
+    } else if (request.indexOf("/DHT_temp") != -1) {
       float temperature = dht.readTemperature();
-      if (!isnan(humidity) && !isnan(temperature)) {
-        client.println("HTTP/1.1 200 OK");
-        client.println("Content-Type: text/plain");
-        client.println();
-        client.print(temperature, 2);  // Send temperature value only
-        client.print(",");
-      client.println(humidity, 2);   // Send humidity value only
-}
 
-    }
-    else if (request.indexOf("/get_water_level") != -1) {
-        int water_level = analogRead(WATER_LEVEL_PIN);
+      if (!isnan(temperature)) {
         client.println("HTTP/1.1 200 OK");
         client.println("Content-Type: text/plain");
-        client.println();
-        client.println(water_level);  // Send water level value only
-    }
-    else {
+        client.println("Connection: close");  // Close the connection after
+                                              // sending the response
+        client.println();  // Send a blank line to indicate the end of headers
+
+        client.print(temperature, 2);  // Send temperature value
+        client.println("C");
+      } else {
+        client.println("HTTP/1.1 500 Internal Server Error");
+        client.println("Content-Type: text/plain");
+        client.println("Connection: close");  // Close the connection after
+                                              // sending the response
+        client.println();  // Send a blank line to indicate the end of headers
+        client.println("Failed to read temperature from DHT sensor!");
+      }
+    } else if (request.indexOf("/DHT_humid") != -1) {
+      float humidity = dht.readHumidity();
+
+      if (!isnan(humidity)) {
+        client.println("HTTP/1.1 200 OK");
+        client.println("Content-Type: text/plain");
+        client.println("Connection: close");  // Close the connection after
+                                              // sending the response
+        client.println();  // Send a blank line to indicate the end of headers
+
+        client.print(humidity, 2);  // Send humidity value
+        client.println("%");
+      } else {
+        client.println("HTTP/1.1 500 Internal Server Error");
+        client.println("Content-Type: text/plain");
+        client.println("Connection: close");  // Close the connection after
+                                              // sending the response
+        client.println();  // Send a blank line to indicate the end of headers
+        client.println("Failed to read humidity from DHT sensor!");
+      }
+    } else if (request.indexOf("/relay_on") != -1) {
+      const int relayPin = 7;
+      digitalWrite(relayPin, HIGH);  // Turn the relay ON
+      Serial.println("Relay is ON");
+
+      client.println("HTTP/1.1 200 OK");
+      client.println("Content-Type: text/plain");
+      client.println("Connection: close");  // Close the connection after
+                                            // sending the response
+      client.println();  // Send a blank line to indicate the end of headers
+      client.println("Relay is ON");
+    } else if (request.indexOf("/relay_off") != -1) {
+      const int relayPin = 7;
+      digitalWrite(relayPin, LOW);  // Turn the relay OFF
+      Serial.println("Relay is OFF");
+
+      client.println("HTTP/1.1 200 OK");
+      client.println("Content-Type: text/plain");
+      client.println("Connection: close");  // Close the connection after
+                                            // sending the response
+      client.println();  // Send a blank line to indicate the end of headers
+      client.println("Relay is OFF");
+    } else if (request.indexOf("/get_water_level") != -1) {
+      int water_level = analogRead(WATER_LEVEL_PIN);
+      client.println("HTTP/1.1 200 OK");
+      client.println("Content-Type: text/plain");
+      client.println();
+      client.println(water_level);  // Send water level value only
+    } else {
       client.println("HTTP/1.1 404 Not Found");
       client.println("Content-Type: text/plain");
       client.println();
       client.println("Invalid request");
     }
-    
+
     client.stop();
     Serial.println("Client disconnected");
   }
-  
-  if (Serial.available() > 0) {                                                      
-    user_bytes_received = Serial.readBytesUntil(13, user_data, sizeof(user_data));   
+
+  if (Serial.available() > 0) {
+    user_bytes_received =
+        Serial.readBytesUntil(13, user_data, sizeof(user_data));
   }
 
   if (user_bytes_received) {
     parse_cmd(user_data);
-    user_bytes_received = 0;                                                        
-    memset(user_data, 0, sizeof(user_data));                                         
+    user_bytes_received = 0;
+    memset(user_data, 0, sizeof(user_data));
   }
 }

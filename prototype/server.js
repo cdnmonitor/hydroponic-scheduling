@@ -6,7 +6,7 @@ const app = express();
 const port = 3000;
 
 const MAX_WHILE_ITERATIONS = 50;
-const ARDUINO_IP = "http://23.243.138.154/";
+const ARDUINO_IP = "http://localhost:8080/";
 const ENDPOINTS = {
     "relay_on": "relay_on",
     "relay_off": "relay_off",
@@ -16,6 +16,7 @@ const ENDPOINTS = {
 };
 
 app.use(bodyParser.json());
+const results = [];
 
 app.get('/executePseudocode', async (req, res) => {
     try {
@@ -95,7 +96,7 @@ app.get('/executePseudocode', async (req, res) => {
             }
         }
 
-        res.send('Pseudocode executed successfully.');
+        res.send({ message: 'Pseudocode executed successfully.', results: results });
 
     } catch (error) {
         res.status(500).send('Error executing pseudocode: ' + error.message);
@@ -118,7 +119,8 @@ async function processAction(line, variables) {
                 // If request is successful, reset the counter
                 failedRequestCount = 0;
             }
-
+            variables[line] = data.value;
+            results.push({ action: line, value: data.value });
             // If failed requests exceed 10, throw an error
             if (failedRequestCount >= 10) {
                 throw new Error('Exceeded 10 consecutive failed requests.');
