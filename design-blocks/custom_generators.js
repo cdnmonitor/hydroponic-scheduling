@@ -5,7 +5,8 @@ Blockly.JavaScript['check_ph'] = function (block) {
 };
 
 Blockly.JavaScript['check_water_level'] = function (block) {
-    return 'check_water_level\n';
+    var code = `check_water_level`;
+    return [code, Blockly.JavaScript.ORDER_ATOMIC];
 };
 
 Blockly.JavaScript['check_water_temperature'] = function (block) {
@@ -24,7 +25,8 @@ Blockly.JavaScript['disable_relay'] = function (block) {
 };
 
 Blockly.JavaScript['read_sensor'] = function (block) {
-    return 'check_sensor\n';
+    var code = `check_sensor`;
+    return [code, Blockly.JavaScript.ORDER_ATOMIC];
 };
 
 Blockly.JavaScript['number'] = function (block) {

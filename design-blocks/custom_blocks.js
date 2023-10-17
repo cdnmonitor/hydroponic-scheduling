@@ -7,7 +7,6 @@ Blockly.Blocks['check_ph'] = {
     }
 };
 
-// Check Water Level
 Blockly.Blocks['check_water_level'] = {
     init: function () {
         this.appendDummyInput()
