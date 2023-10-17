@@ -1,4 +1,18 @@
-# Pseudocode for Hydroponic Farms
+# Hydroponic Scheduling
+https://docs.google.com/presentation/d/1dIQLruPDIwin1Sa0OkognLq0T8XSzdSecS-MJPYo9L4/edit?usp=sharing
+## ExpressJS Interpreter
+This is the brain/interpreter of the entire project. It take the generated pseudocode blockly and interprets it in code logic which we see every day. It is written in ExpressJS and runs on port 3000.
+
+to run: 'node server.js'
+You can send a request to the /executePseudocode with a parameter consisting of an array of commands. run.py is a working demonstration of how to send a request to the server manually.
+
+## Mock Server
+Given you don't have your own hydroponic farm at home, you can run a mock server to simulate the behaviour of a hydroponic farm. The mock server runs on port 8080. It outputs fake data unlike the real farm, but is good for testing the expressjs interpreter.
+
+to run,type 'node mockserver.js'
+You can tell if it works by going to localhost:8080/relay_on
+
+## Pseudocode for Hydroponic Farms
 
 1. **Variable Assignment**
 

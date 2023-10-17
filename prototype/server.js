@@ -10,7 +10,8 @@ const ARDUINO_IP = "http://localhost:8080/";
 const ENDPOINTS = {
     "relay_on": "relay_on",
     "relay_off": "relay_off",
-    "read_dht": "read_dht",
+    "DHT_temp": "DHT_temp",
+    "DHT_humid": "DHT_humid",	
     "read_temp": "read_temp",
     "read_ph": "read_ph"
 };

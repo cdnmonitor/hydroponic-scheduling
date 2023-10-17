@@ -16,7 +16,13 @@ app.get('/relay_off', (req, res) => {
 });
 
 // Fake endpoint for read_dht
-app.get('/read_dht', (req, res) => {
+app.get('/DHT_temp', (req, res) => {
+    console.log("Mock: read_dht called");
+    res.send({ value: '50' });  // Example humidity value
+});
+
+// Fake endpoint for read_dht
+app.get('/DHT_humid', (req, res) => {
     console.log("Mock: read_dht called");
     res.send({ value: '50' });  // Example humidity value
 });
