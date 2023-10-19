@@ -1,36 +1,8 @@
-Blockly.Blocks['check_ph'] = {
-    init: function () {
-        this.appendDummyInput()
-            .appendField("Check pH Level");
-        this.setOutput(true, "Number"); // This block outputs a value of type "Number"
-        this.setColour(60);
-    }
-};
-
-Blockly.Blocks['check_water_level'] = {
-    init: function () {
-        this.appendDummyInput()
-            .appendField("Check Water Level");
-        this.setOutput(true, "Number");
-        this.setColour(90);
-    }
-};
-
-// Check Water Temperature
-Blockly.Blocks['check_water_temperature'] = {
-    init: function () {
-        this.appendDummyInput()
-            .appendField("Check Temperature");
-        this.setOutput(true, "Number"); // This block outputs a value of type "Number"
-        this.setColour(120);  // I'm using a different color for differentiation. You can adjust as needed.
-    }
-};
-
 Blockly.Blocks['enable_relay'] = {
     init: function () {
         this.appendDummyInput()
             .appendField("Enable Relay");
-        this.setPreviousStatement(true, null); // This block does not return a value, but it can connect to blocks before...
+        this.setPreviousStatement(true, null);  // This block does not return a value, but it can connect to blocks before...
         this.setNextStatement(true, null);     // ...and after it
         this.setColour(180);  // Adjust color as needed
     }
@@ -40,18 +12,36 @@ Blockly.Blocks['disable_relay'] = {
     init: function () {
         this.appendDummyInput()
             .appendField("Disable Relay");
-        this.setPreviousStatement(true, null);
-        this.setNextStatement(true, null);
-        this.setColour(180);
+        this.setPreviousStatement(true, null);  // This block does not return a value, but it can connect to blocks before...
+        this.setNextStatement(true, null);     // ...and after it
+        this.setColour(180);  // Adjust color as needed
     }
 };
 
-Blockly.Blocks['read_sensor'] = {
+Blockly.Blocks['read_dht'] = {
     init: function () {
         this.appendDummyInput()
-            .appendField("Read Sensor");
-        this.setOutput(true, "Number");
-        this.setColour(210);
+            .appendField("Read DHT");
+        this.setOutput(true, "Number");  // This block outputs a value of type "Number"
+        this.setColour(60);  // Adjust color as needed
+    }
+};
+
+Blockly.Blocks['read_temp'] = {
+    init: function () {
+        this.appendDummyInput()
+            .appendField("Read Temperature");
+        this.setOutput(true, "Number");  // This block outputs a value of type "Number"
+        this.setColour(60);  // Adjust color as needed
+    }
+};
+
+Blockly.Blocks['read_ph'] = {
+    init: function () {
+        this.appendDummyInput()
+            .appendField("Check pH Level");
+        this.setOutput(true, "Number");  // This block outputs a value of type "Number"
+        this.setColour(60);  // Adjust color as needed
     }
 };
 
@@ -105,12 +95,12 @@ Blockly.Blocks['compare_values'] = {
     }
 };
 
-Blockly.Blocks['create_number_variable_custom'] = {
+Blockly.Blocks['set_variable'] = {
     init: function() {
         this.appendValueInput("VALUE")
             .setCheck("Number")
-            .appendField("create NUMBER variable")
-            .appendField(new Blockly.FieldTextInput("variableName"), "VAR_NAME")
+            .appendField("set variable")
+            .appendField(new Blockly.FieldTextInput("variable_name"), "VAR_NAME")
             .appendField("with value");
         this.setColour(290);  
         this.setPreviousStatement(true, null);
@@ -138,111 +128,48 @@ Blockly.Blocks['create_number_variable_custom'] = {
     }
 };
 
-Blockly.Blocks['create_string_variable_custom'] = {
-    init: function() {
-        this.appendValueInput("VALUE")
-            .setCheck("String")
-            .appendField("create STRING variable")
-            .appendField(new Blockly.FieldTextInput("variableName"), "VAR_NAME")
-            .appendField("with value");
-        this.setColour(300);  
-        this.setPreviousStatement(true, null);
-        this.setNextStatement(true, null);
-    },
-    // Define the default shape for the block using mutations
-    mutationToDom: function() {
-        var container = document.createElement('mutation');
-        container.setAttribute('has_string', 'true');
-        return container;
-    },
-    // Apply the mutation to the block
-    domToMutation: function(xmlElement) {
-        var hasString = (xmlElement.getAttribute('has_string') === 'true');
-        if (hasString) {
-            this.appendString();
-        }
-    },
-    // Append the 'string' block by default
-    appendString: function() {
-        var stringBlock = this.workspace.newBlock('string');
-        stringBlock.initSvg();
-        stringBlock.render();
-        this.getInput('VALUE').connection.connect(stringBlock.outputConnection);
-    }
-};
-
-Blockly.Blocks['set_number_variable'] = {
-    init: function() {
-        this.appendValueInput("VALUE")
-            .setCheck("Number")
-            .appendField("set NUMBER variable")
-            .appendField(new Blockly.FieldTextInput("variableName"), "VAR_NAME")
-            .appendField("to value");
-        this.setColour(290);  
-        this.setPreviousStatement(true, null);
-        this.setNextStatement(true, null);
-    }
-};
-
-Blockly.Blocks['set_string_variable'] = {
-    init: function() {
-        this.appendValueInput("VALUE")
-            .setCheck("String")
-            .appendField("set STRING variable")
-            .appendField(new Blockly.FieldTextInput("variableName"), "VAR_NAME")
-            .appendField("to value");
-        this.setColour(300);  
-        this.setPreviousStatement(true, null);
-        this.setNextStatement(true, null);
-    }
-};
-
-Blockly.Blocks['get_string_variable'] = {
+Blockly.Blocks['get_variable'] = {
     init: function() {
         this.appendDummyInput()
-            .appendField("get STRING variable")
-            .appendField(new Blockly.FieldTextInput("variableName"), "VAR_NAME");
-        this.setColour(300);
-        this.setOutput(true, "String");
-    }
-};
-
-Blockly.Blocks['get_number_variable'] = {
-    init: function() {
-        this.appendDummyInput()
-            .appendField("get NUMBER variable")
-            .appendField(new Blockly.FieldTextInput("variableName"), "VAR_NAME");
+            .appendField("get variable")
+            .appendField(new Blockly.FieldTextInput("variable_name"), "VAR_NAME");
         this.setColour(290);
         this.setOutput(true, "Number");
     }
 };
-Blockly.Blocks['for_loop_custom'] = {
+Blockly.Blocks['custom_for_loop'] = {
     init: function() {
-        this.appendDummyInput()
-            .appendField("for")
-            .appendField(new Blockly.FieldTextInput("variableName1"), "VAR_FROM")
-            .appendField("to")
-            .appendField(new Blockly.FieldTextInput("variableName2"), "VAR_TO");
-            
-        this.appendStatementInput("DO")
-            .appendField("do");
-
-        this.setColour(120);  
-        this.setPreviousStatement(true, null);
-        this.setNextStatement(true, null);
+      this.appendDummyInput()
+          .appendField("for")
+          .appendField(new Blockly.FieldTextInput("i"), "VAR")
+          .appendField("from")
+          .appendField(new Blockly.FieldTextInput("variable1"), "START")
+          .appendField("to")
+           .appendField(new Blockly.FieldTextInput("variable2"), "END");
+      this.appendStatementInput("DO")
+          .setCheck(null)
+          .appendField("");
+      this.appendDummyInput()
+      this.setPreviousStatement(true, null);
+      this.setNextStatement(true, null);
+      this.setColour(120);
+      this.setTooltip("Custom For Loop");
+      this.setHelpUrl("");
     }
-};
+  };
 
-
-Blockly.Blocks['append_strings'] = {
+Blockly.Blocks['custom_while'] = {
     init: function() {
-        this.appendValueInput("STRING1")
-            .setCheck("String")
-            .appendField("append");
-        this.appendValueInput("STRING2")
-            .setCheck("String")
-            .appendField("with");
-        this.setColour(310);
-        this.setOutput(true, "String");
+      this.appendValueInput("CONDITION")
+          .setCheck("Boolean")
+          .appendField("while");
+      this.appendStatementInput("DO")
+          .appendField("do");
+      this.setPreviousStatement(true, null);
+      this.setNextStatement(true, null);
+      this.setColour(120);
+      this.setTooltip("Custom while loop.");
+      this.setHelpUrl("");
     }
-};
+  };
+  

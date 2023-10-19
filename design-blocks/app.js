@@ -6,16 +6,16 @@ function sendPostRequest(apiEndpoint) {
     return fetch(apiEndpoint, {
         method: 'POST'
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-    })
-    .catch(error => {
-        const outputDiv = document.getElementById("outputDiv");
-        outputDiv.innerHTML += `${error.message}<br>`;
-        throw error;
-    });
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+        })
+        .catch(error => {
+            const outputDiv = document.getElementById("outputDiv");
+            outputDiv.innerHTML += `${error.message}<br>`;
+            throw error;
+        });
 }
 
 
@@ -25,7 +25,7 @@ function printToOutput(value) {
     outputDiv.innerHTML = currentContent + value + "<br/>";
 }
 
-document.getElementById('runCode').addEventListener('click', function() {
+document.getElementById('runCode').addEventListener('click', function () {
     // Generate JavaScript code from Blockly workspace
     var generatedCode = Blockly.JavaScript.workspaceToCode(workspace);
     document.getElementById("outputDiv").innerHTML = "";
@@ -40,18 +40,29 @@ document.getElementById('runCode').addEventListener('click', function() {
     }
 });
 
-window.onerror = function (msg, url, lineNo, columnNo, error) {
-    const outputDiv = document.getElementById("outputDiv");
-    outputDiv.innerHTML += `Error: ${msg} at line ${lineNo}, column ${columnNo}<br>`;
-    return true;  // This will prevent the error from being shown in the console
-};
-
-document.getElementById('generateCode').addEventListener('click', function() {
+document.getElementById('generateCode').addEventListener('click', function () {
     // Generate JavaScript code from Blockly workspace
     var generatedCode = Blockly.JavaScript.workspaceToCode(workspace);
     generatedCode = generatedCode.replace(/;\s*$/gm, '');
+    if (typeof generatedCode !== 'string') {
+        generatedCode = String(generatedCode);
+    }
+    
+    // Capitalize 'if' and 'else'
+    generatedCode = generatedCode.replace(/if/g, 'IF');
+    generatedCode = generatedCode.replace(/else/g, 'ELSE');
+    
+    // Remove parentheses
+    generatedCode = generatedCode.replace(/\(/g, '');
+    generatedCode = generatedCode.replace(/\)/g, '');
+    
+    // Remove curly brackets
+    generatedCode = generatedCode.replace(/\{/g, '');
+    generatedCode = generatedCode.replace(/\}/g, '');
+    
     // Display the generated code in the newOutputDiv
     document.getElementById("newOutputDiv").innerHTML = `<pre>${generatedCode}</pre>`;
+    
 });
 
 function asyncYielder(genFunc) {
@@ -68,17 +79,17 @@ function asyncYielder(genFunc) {
     return handle(gen.next());
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-    document.getElementById('saveCode').addEventListener('click', function() {
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById('saveCode').addEventListener('click', function () {
         let content = document.getElementById('newOutputDiv').textContent;
         let encodedUri = encodeURIComponent(content);
         let dataUri = 'data:text/plain;charset=utf-8,' + encodedUri;
-        
+
         let link = document.createElement('a');
         link.setAttribute('href', dataUri);
         link.setAttribute('download', 'outputCode.js');
         document.body.appendChild(link);  // Required for Firefox
-        
+
         link.click();  // This will download the text as an outputCode.txt file
 
         document.body.removeChild(link);  // Clean up after download
