@@ -6,12 +6,17 @@ url = 'http://localhost:3000/executePseudocode'
 # Sample pseudocode payload
 data = {
     "pseudocode": [
-        "SET temp TO 25",
-        "IF temp > 24",
+        "SET humidity TO read_dht",
+        "SET temp TO read_temp",
+        "IF humidity < 40 AND temp > 28",
         "relay_on",
+        "ELSE",
+        "relay_off",
         "END_IF"
     ]
 }
+
+
 
 headers = {'Content-type': 'application/json'}
 

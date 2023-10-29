@@ -18,6 +18,8 @@ const ENDPOINTS = {
 
 app.use(bodyParser.json());
 let results = [];
+let latestResponses = {}; // Capture the latest response from each endpoint action
+
 
 app.post('/executePseudocode', async (req, res) => {
     try {
@@ -31,8 +33,14 @@ app.post('/executePseudocode', async (req, res) => {
             if (line.startsWith("SET ")) {
                 const parts = line.split(" TO ");
                 const varName = parts[0].split(" ")[1];
-                variables[varName] = parseInt(parts[1]);
+                if (ENDPOINTS[parts[1]]) {
+                    await processAction(parts[1], variables);
+                    variables[varName] = variables[parts[1]];
+                } else {
+                    variables[varName] = parseFloat(parts[1]);
+                }
             }
+            
             // If condition
             else if (line.startsWith("IF ")) {
                 const condition = line.split("IF ")[1];
@@ -140,18 +148,24 @@ async function processAction(line, variables) {
                 // If request is successful, reset the counter
                 failedRequestCount = 0;
             }
-            variables[line] = typeof data === 'string' ? data : data.value;
+
+            // Use the data directly since the response is a plain string
+            latestResponses[line] = data;
+
             results.push({
                 action: line,
-                endpointResponse: typeof data === 'string' ? data : data.value,
-                variablesBefore: { ...variables },
+                endpointResponse: latestResponses[line],
+                variablesBefore: { ...variables }
             });
+
+            // If the data is a number string, convert it to a number
+            const parsedData = isNaN(latestResponses[line]) ? latestResponses[line] : parseFloat(latestResponses[line]);
+            variables[line] = parsedData;
+
             // If failed requests exceed 10, throw an error
             if (failedRequestCount >= 10) {
                 throw new Error('Exceeded 10 consecutive failed requests.');
             }
-
-            variables[line] = typeof data === 'string' ? data : data.value;
 
         } catch (error) {
             console.error(`Error processing action ${line}:`, error.message);
@@ -187,6 +201,7 @@ async function processAction(line, variables) {
     }
 }
 
+
 function evaluateCondition(condition, variables) {
     condition = condition.trim();
 
@@ -210,19 +225,8 @@ function evaluateCondition(condition, variables) {
     // Handle simple comparison
     const parts = condition.split(" ");
     if (parts.length === 3) {
-        let left, right;
-
-        if (["TRUE", "FALSE"].includes(parts[0])) {
-            left = parts[0] === "TRUE";
-        } else {
-            left = isNaN(parts[0]) ? variables[parts[0]] : parseInt(parts[0]);
-        }
-
-        if (["TRUE", "FALSE"].includes(parts[2])) {
-            right = parts[2] === "TRUE";
-        } else {
-            right = isNaN(parts[2]) ? variables[parts[2]] : parseInt(parts[2]);
-        }
+        let left = isNaN(parts[0]) ? (variables[parts[0]] || latestResponses[parts[0]]) : parseFloat(parts[0]);
+        let right = isNaN(parts[2]) ? (variables[parts[2]] || latestResponses[parts[2]]) : parseFloat(parts[2]);
 
         switch (parts[1]) {
             case ">":
