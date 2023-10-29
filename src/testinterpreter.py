@@ -15,7 +15,7 @@ data = {
 
 headers = {'Content-type': 'application/json'}
 
-response = requests.get(url, data=json.dumps(data), headers=headers)
+response = requests.post(url, data=json.dumps(data), headers=headers)  # Change GET to POST
 
 if response.status_code == 200:
     print("Response:", response.text)  # Print the plain text response directly

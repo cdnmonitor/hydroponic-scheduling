@@ -17,9 +17,9 @@ const ENDPOINTS = {
 };
 
 app.use(bodyParser.json());
-const results = [];
+let results = [];
 
-app.get('/executePseudocode', async (req, res) => {
+app.post('/executePseudocode', async (req, res) => {
     try {
         const pseudocode = req.body.pseudocode;
         const variables = {};
@@ -33,7 +33,6 @@ app.get('/executePseudocode', async (req, res) => {
                 const varName = parts[0].split(" ")[1];
                 variables[varName] = parseInt(parts[1]);
             }
-
             // If condition
             else if (line.startsWith("IF ")) {
                 const condition = line.split("IF ")[1];
@@ -49,7 +48,6 @@ app.get('/executePseudocode', async (req, res) => {
                     }
                 }
             }
-
             // For loop
             else if (line.startsWith("FOR ")) {
                 const parts = line.split(" ");
@@ -69,7 +67,6 @@ app.get('/executePseudocode', async (req, res) => {
 
                 i = loopEnd;
             }
-
             // While loop
             else if (line.startsWith("WHILE ")) {
                 const condition = line.split("WHILE ")[1];
@@ -97,12 +94,35 @@ app.get('/executePseudocode', async (req, res) => {
             }
         }
 
-        res.send({ message: 'Pseudocode executed successfully.', results: results });
+        const formattedResults = results.map(r => {
+            const { action, endpointResponse, variablesBefore } = r;
+            let summary = `${action} was executed.`;
+
+            if (ENDPOINTS[action]) {
+                summary += ` Endpoint returned: ${endpointResponse}.`;
+            }
+
+            const variableChanges = Object.entries(variablesBefore)
+                .filter(([key, value]) => variables[key] !== value)
+                .map(([key, value]) => `${key} changed from ${value} to ${variables[key]}`);
+
+            if (variableChanges.length) {
+                summary += ` ${variableChanges.join('. ')}.`;
+            }
+
+            return summary;
+        });
+
+        res.send({ message: 'Pseudocode executed successfully.', details: formattedResults });
+
+        // After sending the response, reset the results array for the next execution
+        results = [];
 
     } catch (error) {
         res.status(500).send('Error executing pseudocode: ' + error.message);
     }
 });
+
 
 let failedRequestCount = 0; // Counter for consecutive failed requests
 
@@ -120,23 +140,26 @@ async function processAction(line, variables) {
                 // If request is successful, reset the counter
                 failedRequestCount = 0;
             }
-            variables[line] = data.value;
-            results.push({ action: line, value: data.value });
+            variables[line] = typeof data === 'string' ? data : data.value;
+            results.push({
+                action: line,
+                endpointResponse: typeof data === 'string' ? data : data.value,
+                variablesBefore: { ...variables },
+            });
             // If failed requests exceed 10, throw an error
             if (failedRequestCount >= 10) {
                 throw new Error('Exceeded 10 consecutive failed requests.');
             }
 
-            variables[line] = data.value;
+            variables[line] = typeof data === 'string' ? data : data.value;
 
         } catch (error) {
-            // Increment failedRequestCount when any error occurs
+            console.error(`Error processing action ${line}:`, error.message);
             failedRequestCount++;
-
             if (failedRequestCount >= 10) {
                 throw new Error('Exceeded 10 consecutive failed requests.');
             }
-        }
+        }        
     }
     else if (line.includes(" + ") || line.includes(" - ") || line.includes(" * ") || line.includes(" / ")) {
         const parts = line.split(" ");
