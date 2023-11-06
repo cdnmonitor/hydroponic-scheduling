@@ -40,6 +40,11 @@ app.post('/executePseudocode', async (req, res) => {
                     variables[varName] = parseFloat(parts[1]);
                 }
             }
+
+            // Variable Existence Check for variable assignment
+            if (ENDPOINTS[parts[1]] && !variables.hasOwnProperty(varName)) {
+                throw new Error(`Variable ${varName} does not exist.`);
+            }
             
             // If condition
             else if (line.startsWith("IF ")) {
@@ -180,6 +185,11 @@ async function processAction(line, variables) {
         const varName = parts[0];
         const operation = parts[1];
         const operand = isNaN(parts[2]) ? variables[parts[2]] : parseInt(parts[2]);
+
+        /* Check for valid names */
+        if (!variables.hasOwnProperty(varName)) {
+            throw new Error(`Variable ${varName} does not exist.`);
+        }
 
         switch (operation) {
             case "+":
