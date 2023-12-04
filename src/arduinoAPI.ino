@@ -1,187 +1,151 @@
-#include <WiFiS3.h>
-#include <DHT.h>
-#include "ph_iso_grav.h"       
-#include "ph_grav.h"             
-#include "rtd_grav.h"
+#include "WiFiS3.h"
+#include "DHT.h"
 
-#define WATER_LEVEL_PIN A2
-#define DHT11PIN 4
-#define DHTTYPE DHT11
-
-const char* ssid = "SpectrumSetup-EF";
-const char* password = "lightsnake383";
-
+char ssid[] = "SpectrumSetup-EF";        // your network SSID (name)
+char pass[] = "lightsnake383";        // your network password
+int status = WL_IDLE_STATUS;
 WiFiServer server(80);
-DHT dht(DHT11PIN, DHTTYPE);
 
-#ifdef USE_PULSE_OUT
-  Gravity_pH_Isolated pH(A0);         
-#else
-  Gravity_pH pH(A0);   
-#endif
 
-Gravity_RTD RTD(A1);
+#define DHTPIN 2     // Pin which is connected to the DHT sensor
+#define DHTTYPE DHT11   // DHT 11
+#define RELAY_PIN 13  // Relay control pin
 
-char user_data[32];                     
-uint8_t user_bytes_received = 0;                
+
+DHT dht(DHTPIN, DHTTYPE);
+
 
 void setup() {
   Serial.begin(9600);
-  dht.begin();
-  connectToWiFi();
-  pHSetup();
-  rtdSetup();
-  server.begin();
-}
-
-void connectToWiFi() {
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.println("Connecting to WiFi...");
+    pinMode(RELAY_PIN, OUTPUT);
+  if (WiFi.status() == WL_NO_MODULE) {
+    Serial.println("Communication with WiFi module failed!");
+    while (true);
   }
-  Serial.println("Connected to WiFi");
-}
 
-void pHSetup() {
-  Serial.println(F("Use commands \"CAL,7\", \"CAL,4\", and \"CAL,10\" to calibrate the pH circuit"));
-  Serial.println(F("Use \"CAL,CLEAR\" to clear the pH calibration"));
-  if(pH.begin()) Serial.println("Loaded EEPROM for pH");
-}
-
-void rtdSetup() {
-  Serial.println(F("Use \"CAL,nnn.n\" to calibrate the RTD circuit. \"CAL,CLEAR\" clears the RTD calibration"));
-  if(RTD.begin()) Serial.println("Loaded EEPROM for RTD");
-}
-
-void getPublicIP(WiFiClient &client) {
-  const char* server = "api.ipify.org";
-  WiFiClient http;
-  
-  if (!http.connect(server, 80)) {
-    sendResponse(client, 500, "Error connecting to server");
-    return;
+  String fv = WiFi.firmwareVersion();
+  if (fv < WIFI_FIRMWARE_LATEST_VERSION) {
+    Serial.println("Please upgrade the firmware");
   }
-  
-  http.println("GET / HTTP/1.1");
-  http.println("Host: api.ipify.org");
-  http.println("Connection: close");
-  http.println();
 
-  while (http.connected() && http.readStringUntil('\n') != "\r") {}
-  
-  String publicIP = http.readStringUntil('\r');
-  publicIP.trim();  
-
-  Serial.println("Public IP: " + publicIP);
-  sendResponse(client, 200, publicIP);
-  http.stop();
-}
-
-void parse_cmd(char* string) {
-  String cmd = String(string);
-  cmd.toUpperCase();
-  handlePHCommands(cmd);
-  handleRTDCommands(cmd);
-}
-
-void handlePHCommands(String &cmd) {
-  if (cmd.startsWith("CAL,7")) {
-    pH.cal_mid();
-    Serial.println("MID CALIBRATED");
-  }
-  else if (cmd.startsWith("CAL,4")) {
-    pH.cal_low();
-    Serial.println("LOW CALIBRATED");
-  }
-  else if (cmd.startsWith("CAL,10")) {
-    pH.cal_high();
-    Serial.println("HIGH CALIBRATED");
-  }
-  else if (cmd.startsWith("CAL,CLEAR")) {
-    pH.cal_clear();
-    Serial.println("CALIBRATION CLEARED");
-  }
-}
-
-void handleRTDCommands(String &cmd) {
-  if (cmd.startsWith("CAL")) {
-    int index = cmd.indexOf(',');
-    if (index != -1) {
-      String param = cmd.substring(index + 1);
-      if (param.equals("CLEAR")) {
-        RTD.cal_clear();
-        Serial.println("CALIBRATION CLEARED");
-      }
-      else {
-        RTD.cal(param.toFloat());
-        Serial.println("RTD CALIBRATED");
-      }
+  while (status != WL_CONNECTED) {
+    Serial.print("Attempting to connect to Network named: ");
+    Serial.println(ssid);
+    status = WiFi.begin(ssid, pass);
+    if (status != WL_CONNECTED) {
+      Serial.println(millis() + "ms: Failed to connect, retrying...");
+      delay(5000);
     }
   }
-}
-
-void sendResponse(WiFiClient &client, int statusCode, const String &response) {
-  client.println("HTTP/1.1 " + String(statusCode));
-  client.println("Content-Type: text/plain");
-  client.println();
-  client.println(response);
+  server.begin();
+  dht.begin();
+  printWifiStatus();
 }
 
 void loop() {
   WiFiClient client = server.available();
-  if (client) {
-    handleClientRequest(client);
-    client.stop();
-    Serial.println("Client disconnected");
+  if (!client) {
+    return;
+  }
+  Serial.println(String(millis()) + "ms: New client connected");
+
+  String requestLine = "";
+  while (client.connected()) {
+    if (client.available()) {
+      char c = client.read();
+      Serial.write(c);
+      if (c == '\n') {
+        if (requestLine.endsWith("\r")) {
+          requestLine.remove(requestLine.length() - 1);
+        }
+        if (requestLine.length() > 0) {
+          Serial.println(String(millis()) + "ms: Request Line: " + requestLine);
+          processRequest(requestLine, client);
+          break;
+        }
+        requestLine = "";
+      } else {
+        requestLine += c;
+      }
+    }
+  }
+  client.stop();
+  Serial.println(String(millis()) + "ms: Client disconnected");
+}
+
+void processRequest(String request, WiFiClient &client) {
+  Serial.println(String(millis()) + "ms: Processing Request");
+
+  client.println("HTTP/1.1 200 OK");
+  client.println("Content-type: text/plain");
+  client.println("Connection: close");
+  client.println();
+
+  if (request.startsWith("POST /humidity")) {
+    String humidityResponse = readHumidity();
+    client.println(humidityResponse);
+  } else if (request.startsWith("POST /temperature")) {
+    String temperatureResponse = readTemperature();
+    client.println(temperatureResponse);
+  } else if (request.startsWith("POST /relay_on")) {
+    Serial.println(String(millis()) + "ms: Relay ON endpoint hit");
+    controlRelay(true);
+    client.println("{\"response\":\"Relay turned on\"}");
+  } else if (request.startsWith("POST /relay_off")) {
+    Serial.println(String(millis()) + "ms: Relay OFF endpoint hit");
+    controlRelay(false);
+    client.println("{\"response\":\"Relay turned off\"}");
+  } else {
+    client.println("{\"error\":\"Unsupported request method.\"}");
   }
 
-  if (Serial.available()) {
-    user_bytes_received = Serial.readBytesUntil('\n', user_data, sizeof(user_data));
-    if (user_bytes_received) {
-      parse_cmd(user_data);
-      user_bytes_received = 0;                                                        
-      memset(user_data, 0, sizeof(user_data));                                         
-    }
+  client.println();
+  Serial.println(String(millis()) + "ms: Response sent");
+}
+
+
+
+void printWifiStatus() {
+  Serial.print("SSID: ");
+  Serial.println(WiFi.SSID());
+  IPAddress ip = WiFi.localIP();
+  Serial.print("IP Address: ");
+  Serial.println(ip);
+  long rssi = WiFi.RSSI();
+  Serial.print("Signal strength (RSSI):");
+  Serial.print(rssi);
+  Serial.println(" dBm");
+  Serial.print("Open a browser to http://");
+  Serial.println(ip);
+}
+
+String readHumidity() {
+  float h = dht.readHumidity();
+  if (isnan(h)) {
+    return "{\"error\":\"Failed to read from DHT sensor\"}";
+  } else {
+    return "{\"response\":\"" + String(h) + "\"}";
   }
 }
 
-void handleClientRequest(WiFiClient &client) {
-  String request = client.readStringUntil('\r');
-  client.flush();
-
-  if (request.indexOf("/LED_ON") != -1) {
-    digitalWrite(LED_BUILTIN, HIGH);
-    sendResponse(client, 200, "LED is on");
-  }
-  else if (request.indexOf("/LED_OFF") != -1) {
-    digitalWrite(LED_BUILTIN, LOW);
-    sendResponse(client, 200, "LED is off");
-  }
-  else if (request.indexOf("/read_ph") != -1) {
-    float ph_value = pH.read_ph();
-    sendResponse(client, 200, String(ph_value, 2));
-  }
-  else if (request.indexOf("/read_temp") != -1) {
-    float temp_value = RTD.read_RTD_temp_C();
-    sendResponse(client, 200, String(temp_value, 2));
-  }
-  else if (request.indexOf("/get_public_IP") != -1) {
-    getPublicIP(client);
-  }
-  else if (request.indexOf("/read_DHT") != -1) {
-    float humidity = dht.readHumidity();
-    float temperature = dht.readTemperature();
-
-    if (!isnan(humidity) && !isnan(temperature)) {
-      sendResponse(client, 200, String(temperature, 2) + "," + String(humidity, 2));
-    }
-  }
-  else if (request.indexOf("/get_water_level") != -1) {
-    int water_level = analogRead(WATER_LEVEL_PIN);
-    sendResponse(client, 200, String(water_level));
-  }
-  else {
-    sendResponse(client, 404, "Invalid request");
+String readTemperature() {
+  float t = dht.readTemperature();
+  if (isnan(t)) {
+    return "{\"error\":\"Failed to read from DHT sensor\"}";
+  } else {
+    float calibratedTemp = t - 1.3; // Adjust this value based on your observations
+    return "{\"response\":\"" + String(calibratedTemp) + "\"}";
   }
 }
+
+void controlRelay(bool turnOn) {
+  Serial.println(String(millis()) + "ms: Relay control function called. Turn on: " + (turnOn ? "Yes" : "No"));
+  if (turnOn) {
+    digitalWrite(RELAY_PIN, HIGH);
+    Serial.println(String(millis()) + "ms: Relay should be ON now");
+  } else {
+    digitalWrite(RELAY_PIN, LOW);
+    Serial.println(String(millis()) + "ms: Relay should be OFF now");
+  }
+}
+
