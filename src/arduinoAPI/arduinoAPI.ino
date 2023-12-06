@@ -98,6 +98,9 @@ void processRequest(String request, WiFiClient &client) {
   } else if (request.startsWith("POST /temperature")) {
     String temperatureResponse = readTemperature();
     client.println(temperatureResponse);
+  } else if (request.startsWith("POST /probeTemperature")) {
+    String probeTemperatureResponse = probeTemperature();
+    client.println(probeTemperatureResponse);
   } else if (request.startsWith("POST /relay_on")) {
     Serial.println(String(millis()) + "ms: Relay ON endpoint hit");
     controlRelay(true);

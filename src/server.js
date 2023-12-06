@@ -6,14 +6,14 @@ const app = express();
 const port = 3000;
 
 const MAX_WHILE_ITERATIONS = 50;
-const ARDUINO_IP = "http://localhost:8080/";
+const ARDUINO_IP = "http://192.168.1.22:80/";
 const ENDPOINTS = {
     "relay_on": "relay_on",
     "relay_off": "relay_off",
-    "DHT_temp": "DHT_temp",
-    "DHT_humid": "DHT_humid",	
-    "read_temp": "read_temp",
-    "read_ph": "read_ph"
+    "DHT_temp": "temperature",
+    "DHT_humid": "humidity",
+    "read_temp": "probeTemperature", // changed from "read_temp" to "temperature"
+    "read_ph": "ph"            // changed from "read_ph" to "ph"
 };
 
 app.use(bodyParser.json());
@@ -140,7 +140,7 @@ async function processAction(line, variables) {
             const {
                 data,
                 status
-            } = await axios.get(ARDUINO_IP + ENDPOINTS[line]);
+            } = await axios.post(ARDUINO_IP + ENDPOINTS[line]);
 
             if (status !== 200) {
                 failedRequestCount++;
