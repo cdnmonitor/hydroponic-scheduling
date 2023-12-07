@@ -7,7 +7,7 @@ const app = express();
 const port = 3000;
 
 const MAX_WHILE_ITERATIONS = 50;
-const ARDUINO_IP = "http://localhost:80/";
+const ARDUINO_IP = "http://172.20.10.6:80/";
 const ENDPOINTS = {
     "relay_on": "relay_on",
     "relay_off": "relay_off",
@@ -22,6 +22,9 @@ app.use(bodyParser.json());
 let results = [];
 let latestResponses = {}; // Capture the latest response from each endpoint action
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 app.post('/executePseudocode', async (req, res) => {
     try {
@@ -43,19 +46,37 @@ app.post('/executePseudocode', async (req, res) => {
                 } else {
                     variables[varName] = parseFloat(parts[1]);
                 }
+            
+                console.log(`Value of ${varName} after SET:`, variables[varName]); // Added logging here
             }
             
             // If condition
             else if (line.startsWith("IF ")) {
                 const condition = line.split("IF ")[1];
+                console.log(`Evaluating condition: ${condition}`); // Log the condition being evaluated
+            
                 if (evaluateCondition(condition, variables)) {
-                    i++; // Move to the next line
-                    while (!pseudocode[i].startsWith("END_IF") && !pseudocode[i].startsWith("ELSE")) {
-                        await processAction(pseudocode[i], variables);
+                    console.log(`Condition ${condition} evaluated to true`); // Log if condition is true
+                    while (!pseudocode[i].startsWith("END_IF")) {
+                        if (pseudocode[i].trim().startsWith("ELSE")) {
+                            break; // Break out of the loop if an ELSE line is encountered
+                        }
+                        console.log(`Executing action within IF: ${pseudocode[i]}`); // Log the action being executed
+                        await processAction(pseudocode[i].trim(), variables);
                         i++;
                     }
                 } else {
-                    while (!pseudocode[i].startsWith("END_IF") && !pseudocode[i].startsWith("ELSE")) {
+                    console.log(`Condition ${condition} evaluated to false`); // Log if condition is false
+                    while (!pseudocode[i].startsWith("END_IF")) {
+                        if (pseudocode[i].trim().startsWith("ELSE")) {
+                            i++; // Move past the ELSE
+                            while (!pseudocode[i].startsWith("END_IF")) {
+                                console.log(`Executing action within ELSE: ${pseudocode[i]}`); // Log the action being executed
+                                await processAction(pseudocode[i].trim(), variables);
+                                i++;
+                            }
+                            break; // Exit the loop once END_IF is reached after ELSE
+                        }
                         i++;
                     }
                 }
@@ -166,6 +187,9 @@ async function processAction(line, variables) {
                 data,
                 status
             } = await axios.post(ARDUINO_IP + ENDPOINTS[line]);
+            console.log(`Response from ${line}:`, data);
+
+            await sleep(1000);
 
             if (status !== 200) {
                 failedRequestCount++;
@@ -186,6 +210,7 @@ async function processAction(line, variables) {
             // If the data is a number string, convert it to a number
             const parsedData = isNaN(latestResponses[line]) ? latestResponses[line] : parseFloat(latestResponses[line]);
             variables[line] = parsedData;
+            console.log(`Parsed data for ${line}:`, parsedData);
 
             // If failed requests exceed 10, throw an error
             if (failedRequestCount >= 10) {

@@ -90,7 +90,7 @@ Blockly.JavaScript['custom_for_loop'] = function(block) {
     var end_value = block.getFieldValue('END');
     var commands = Blockly.JavaScript.statementToCode(block, 'DO');
     
-    var code = 'FOR ' + variable_name + ' FROM ' + start_value + ' TO ' + end_value + '\n ' + commands.trim() + '\nEND_FOR\n';
+    var code = 'FOR ' + variable_name + ' ' + start_value + ' TO ' + end_value + '\n ' + commands.trim() + '\nEND_FOR\n';
     return code;
 };
 

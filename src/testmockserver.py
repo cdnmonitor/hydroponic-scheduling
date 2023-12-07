@@ -1,6 +1,6 @@
 import requests
 
-base_url = 'http://localhost:80'  # Assuming your mock server runs on port 80
+base_url = 'http://172.20.10.6:80'  # Assuming your mock server runs on port 80
 
 endpoints = [
     '/relay_on',

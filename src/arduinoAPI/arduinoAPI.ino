@@ -1,8 +1,8 @@
 #include "WiFiS3.h"
 #include "DHT.h"
 
-char ssid[] = "SpectrumSetup-EF";        // your network SSID (name)
-char pass[] = "lightsnake383";        // your network password
+char ssid[] = "test";        // your network SSID (name)
+char pass[] = "poopy11!!";        // your network password
 int status = WL_IDLE_STATUS;
 WiFiServer server(80);
 
@@ -210,6 +210,6 @@ void calibratePH(int type) {
 
 String probeTemperature() {
   float temperature = RTD.read_RTD_temp_F(); // or RTD.read_RTD_temp_C() for C
-  return "{\"temperature\": " + String(temperature, 2) + "}";
+  return "{\"response\": " + String(temperature, 2) + "}";
 }
 
