@@ -1,3 +1,4 @@
+const cors = require('cors');
 const express = require('express');
 const axios = require('axios');
 const bodyParser = require('body-parser');
@@ -16,6 +17,7 @@ const ENDPOINTS = {
     "read_ph": "ph"            // changed from "read_ph" to "ph"
 };
 
+app.use(cors());
 app.use(bodyParser.json());
 let results = [];
 let latestResponses = {}; // Capture the latest response from each endpoint action
