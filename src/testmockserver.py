@@ -1,18 +1,19 @@
 import requests
 
-base_url = 'http://localhost:8080'
+base_url = 'http://localhost:80'  # Assuming your mock server runs on port 80
 
 endpoints = [
     '/relay_on',
     '/relay_off',
-    '/DHT_temp',
-    '/DHT_humid',
-    '/read_temp',
-    '/read_ph'
+    '/temperature',
+    '/humidity',
+    '/probeTemperature',
+    '/ph'
 ]
 
 for endpoint in endpoints:
-    response = requests.get(base_url + endpoint)
+    # Using POST requests as defined in the mock server
+    response = requests.post(base_url + endpoint)
 
     if response.status_code == 200:
         print(f"Testing {endpoint}:")

@@ -1,49 +1,71 @@
 const express = require('express');
-
 const app = express();
-const mockPort = 8080;
+const port = 80;
 
-// Utility function to get a random number between min and max
-function getRandom(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
-}
+// Mock data for simulation
+let relayState = false;
+let humidity = 50.0; // Dummy humidity value
+let temperature = 22.0; // Dummy temperature value
+let phValue = 7.0; // Dummy pH value
 
-// Fake endpoint for relay_on
-app.get('/relay_on', (req, res) => {
-    console.log("Mock: relay_on called");
-    res.send('Relay is ON');
+app.use(express.json());
+
+app.post('/humidity', (req, res) => {
+  console.log('Received request on /humidity');
+  res.json({ response: humidity });
+  console.log('Sent response:', humidity);
 });
 
-// Fake endpoint for relay_off
-app.get('/relay_off', (req, res) => {
-    console.log("Mock: relay_off called");
-    res.send('Relay is OFF');
+app.post('/temperature', (req, res) => {
+  console.log('Received request on /temperature');
+  let calibratedTemp = temperature - 1.3; // Simulate calibration
+  res.json({ response: calibratedTemp });
+  console.log('Sent response:', calibratedTemp);
 });
 
-// Fake endpoint for DHT_temp
-app.get('/DHT_temp', (req, res) => {
-    console.log("Mock: DHT_temp called");
-    res.send(String(getRandom(45, 95)));  // Random temperature between 45°F and 95°F
+app.post('/probeTemperature', (req, res) => {
+  console.log('Received request on /probeTemperature');
+  res.json({ temperature: temperature });
+  console.log('Sent response:', temperature);
 });
 
-// Fake endpoint for DHT_humid
-app.get('/DHT_humid', (req, res) => {
-    console.log("Mock: DHT_humid called");
-    res.send(String(getRandom(30, 80)));  // Random humidity between 30% and 80%
+app.post('/relay_on', (req, res) => {
+  console.log('Received request on /relay_on');
+  relayState = true;
+  res.json({ response: "Relay turned on" });
+  console.log('Relay turned on');
 });
 
-// Fake endpoint for read_temp
-app.get('/read_temp', (req, res) => {
-    console.log("Mock: read_temp called");
-    res.send(String(getRandom(45, 95)));  // Same temperature range as DHT
+app.post('/relay_off', (req, res) => {
+  console.log('Received request on /relay_off');
+  relayState = false;
+  res.json({ response: "Relay turned off" });
+  console.log('Relay turned off');
 });
 
-// Fake endpoint for read_ph
-app.get('/read_ph', (req, res) => {
-    console.log("Mock: read_ph called");
-    res.send(String(getRandom(6.5, 8.5)));  // Random pH value between 6.5 and 8.5
+app.post('/ph', (req, res) => {
+  console.log('Received request on /ph');
+  res.json({ response: phValue });
+  console.log('Sent response:', phValue);
 });
 
-app.listen(mockPort, () => {
-    console.log(`Mock Arduino server running at http://localhost:${mockPort}/`);
+// Simulate pH calibration endpoints
+app.post('/calibrate/ph/:type', (req, res) => {
+  let type = req.params.type;
+  console.log(`Received pH calibration request with type: ${type}`);
+  let responseMessage = `pH ${type}-point calibration done`;
+  if (type === 'clear') {
+    responseMessage = 'pH calibration cleared';
+  }
+  res.json({ response: responseMessage });
+  console.log('Sent response:', responseMessage);
+});
+
+app.use((req, res) => {
+  console.log('Received unsupported request method');
+  res.status(404).json({ error: "Unsupported request method." });
+});
+
+app.listen(port, () => {
+  console.log(`Mock server running at http://localhost:${port}`);
 });

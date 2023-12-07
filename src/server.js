@@ -7,7 +7,7 @@ const app = express();
 const port = 3000;
 
 const MAX_WHILE_ITERATIONS = 50;
-const ARDUINO_IP = "http://192.168.1.22:80/";
+const ARDUINO_IP = "http://localhost:80/";
 const ENDPOINTS = {
     "relay_on": "relay_on",
     "relay_off": "relay_off",
@@ -26,10 +26,12 @@ let latestResponses = {}; // Capture the latest response from each endpoint acti
 app.post('/executePseudocode', async (req, res) => {
     try {
         const pseudocode = req.body.pseudocode;
+        console.log("Received pseudocode:", req.body.pseudocode);
         const variables = {};
 
         for (let i = 0; i < pseudocode.length; i++) {
             const line = pseudocode[i].trim();
+            console.log(`Processing line: ${line}`);
 
             // Variable assignment
             if (line.startsWith("SET ")) {
@@ -61,21 +63,42 @@ app.post('/executePseudocode', async (req, res) => {
             // For loop
             else if (line.startsWith("FOR ")) {
                 const parts = line.split(" ");
-                const start = parseInt(parts[3]);
-                const end = parseInt(parts[5]);
-                let loopEnd = i + 1;
-
-                while (!pseudocode[loopEnd].startsWith("END_FOR")) {
-                    loopEnd++;
-                }
-
-                for (variables[parts[1]] = start; variables[parts[1]] <= end; variables[parts[1]]++) {
-                    for (let j = i + 1; j < loopEnd; j++) {
-                        await processAction(pseudocode[j], variables);
+                if (parts.length === 5 && parts[3] === "TO") {
+                    const loopVarName = parts[1]; // Extract the loop variable name
+                    const start = parseInt(parts[2], 10); // Parse start value
+                    const end = parseInt(parts[4], 10); // Parse end value
+            
+                    if (!isNaN(start) && !isNaN(end)) {
+                        let loopStartIndex = i + 1;
+            
+                        // Find the end of the FOR loop
+                        let loopEndIndex = loopStartIndex;
+                        while (loopEndIndex < pseudocode.length && !pseudocode[loopEndIndex].startsWith("END_FOR")) {
+                            loopEndIndex++;
+                        }
+            
+                        console.log(`Starting FOR loop from ${start} to ${end}`);
+            
+                        // Iterate over the loop range
+                        for (let loopVar = start; loopVar <= end; loopVar++) {
+                            console.log(`Loop iteration ${loopVar}`);
+                            variables[loopVarName] = loopVar;
+            
+                            // Execute each line inside the FOR loop
+                            for (let j = loopStartIndex; j < loopEndIndex; j++) {
+                                console.log(`Executing line inside loop: ${pseudocode[j].trim()}`);
+                                await processAction(pseudocode[j].trim(), variables);
+                            }
+                        }
+            
+                        i = loopEndIndex; // Move the iterator past the END_FOR
+                        console.log(`Completed FOR loop, final variables:`, variables);
+                    } else {
+                        console.error('Error parsing FOR loop start/end values');
                     }
+                } else {
+                    console.error('FOR loop format error');
                 }
-
-                i = loopEnd;
             }
             // While loop
             else if (line.startsWith("WHILE ")) {
@@ -122,7 +145,7 @@ app.post('/executePseudocode', async (req, res) => {
 
             return summary;
         });
-
+        console.log("Final variables:", variables);
         res.send({ message: 'Pseudocode executed successfully.', details: formattedResults });
 
         // After sending the response, reset the results array for the next execution
