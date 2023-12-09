@@ -3,6 +3,14 @@
 - [x] 1.  [Michael Bishai]()
 - [x] 2.  [Marco Costa]() 
 
+## Links
+* https://www.youtube.com/watch?v=zTmWMJnVgPo&feature=youtu.be
+* https://www.youtube.com/watch?v=kYgATCUaSII&feature=youtu.be
+* https://cdnmonitor.github.io/hydroponic-scheduling/src/design-blocks/
+
+## Functionality
+* https://github.com/cdnmonitor/hydroponic-scheduling/blob/main/docs/DSLdocumentation.md
+
 ## Project Description:
 This project looks into writing software that converts functions done by an arduino
 into a remotely managed API that is easy to control and manage via Blockly API.
@@ -28,6 +36,9 @@ Everything that was written for the Arduino API had to be written into the Expre
 
 ## Testing
 Michael has been writing a working Arduino Farm, but has also written a mock server for the use of testing the pseudolanguage.
+
+## Functionality
+<img width="834" alt="chart" src="https://github.com/cdnmonitor/hydroponic-scheduling/assets/52522568/566acd88-76b7-4159-84c1-eb53a975a2a1">
 
 ## ExpressJS Interpreter AND HOW TO RUN!
 This is the brain/interpreter of the entire project. It take the generated pseudocode blockly and interprets it in code logic which we see every day. It is written in ExpressJS and runs on port 3000.
@@ -96,6 +107,7 @@ END_IF
 1. **Loops**
 
 There are two types of loops supported:
+
 
 a) **For Loop:**
 
@@ -202,3 +214,14 @@ END_IF
 
 ## How to add features
 To add a feature, you must decide what level of abstraction you need to reach. If you want to include a new form of data, then you must edit the Arduino API written in C as well as done wiring to the specific desire. You can add a new endpoint to the API with the functionality you've written, and then add that endpoint to the logic of the ExpressJS server. If you want to test without the farm, then you need to make some mock data functions up and put them in mockserver.js. Everything done in code has to be added to blockly ultimately.
+
+1. Edit ArduinoAPI.ino with a function and add an else if endpoint to the endpoint chain. Verify the endpoint works as is.
+2. Add endpoint as a new word in server.js. Make sure all names are unique. Eg. TEMPON: temperature.
+3. Add the new block in custom_blocks.js
+
+# Contributions
+* Marco Costa did the Blockly website
+* Michael Bishai built the Arduino API, API Tests, Pseudocode Tests, all farming functions, and the demonstration farm.
+
+# Future Work
+I (Michael) intend on working on a hydroponic focused version built not off blockly, but with the same server and arduino complements. This ideally can be the backbone for a proper scheduling software for my farm, which can be freely replicated in the future.
