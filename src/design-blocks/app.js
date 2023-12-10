@@ -1,6 +1,22 @@
-var workspace = Blockly.inject('blocklyDiv', {
+/*var workspace = Blockly.inject('blocklyDiv', {
     toolbox: document.getElementById('toolbox')
 });
+*/
+if (typeof defaultBlocks === 'undefined') {
+    console.error('defaultBlocks is not defined. Please check your defaultBlocks.js file.');
+} else {
+    // Initialize Blockly workspace
+    var workspace = Blockly.inject('blocklyDiv', {
+        toolbox: document.getElementById('toolbox')
+    });
+
+    // Convert the XML string to a DOM element
+    var parser = new DOMParser();
+    var defaultBlocksDom = parser.parseFromString(defaultBlocks, "text/xml").documentElement;
+
+    // Load default blocks into workspace
+    Blockly.Xml.domToWorkspace(defaultBlocksDom, workspace);
+}
 
 document.getElementById('executeCode').addEventListener('click', function () {
     // Generate JavaScript code from Blockly workspace
@@ -101,6 +117,10 @@ document.addEventListener("DOMContentLoaded", function () {
         link.click();  // This will download the text as an outputCode.txt file
 
         document.body.removeChild(link);  // Clean up after download
+        var xmlText = workspaceToXml(workspace);
+
+    // The rest of your code for saving the XML text
+    console.log(xmlText);
     });
 });
 function addEndIfStatements(code) {
@@ -145,3 +165,30 @@ function removeEmptyLines(text) {
         .filter(line => line.trim() !== '') // Filter out lines that are empty or contain only whitespace
         .join('\n');
 }
+
+function workspaceToXml(workspace) {
+    var xmlDom = Blockly.Xml.workspaceToDom(workspace);
+    var xmlText = Blockly.Xml.domToPrettyText(xmlDom);
+    return xmlText;
+}
+
+/*
+var xmlString = '<xml xmlns="https://developers.google.com/blockly/xml">  <block type="set_variable" id="~WQ67k6b6gyF{|{OE$de" x="187" y="79">    <mutation xmlns="http://www.w3.org/1999/xhtml" has_number="true"></mutation>    <field name="VAR_NAME">variable_name</field>    <value name="VALUE">      <block type="number" id="NVcE4HL-p~Qo~/3g|%,u">        <field name="NUM"></field>      </block>    </value>    <next>      <block type="custom_for_loop" id="=7mdPY[(cAaviMlAr7FY">        <field name="VAR">i</field>        <field name="START">variable1</field>        <field name="END">variable2</field>      </block>    </next>  </block></xml>';
+var parser = new DOMParser();
+var xmlDoc = parser.parseFromString(xmlString, "text/xml");
+var serializer = new XMLSerializer();
+window.defaultBlocks = serializer.serializeToString(xmlDoc);
+
+document.addEventListener("DOMContentLoaded", function () {
+    var workspace = Blockly.inject('blocklyDiv', {
+        toolbox: document.getElementById('toolbox')
+    });
+
+    var xmlString = '<xml xmlns="https://developers.google.com/blockly/xml">  <block type="set_variable" id="~WQ67k6b6gyF{|{OE$de" x="187" y="79">    <mutation xmlns="http://www.w3.org/1999/xhtml" has_number="true"></mutation>    <field name="VAR_NAME">variable_name</field>    <value name="VALUE">      <block type="number" id="NVcE4HL-p~Qo~/3g|%,u">        <field name="NUM"></field>      </block>    </value>    <next>      <block type="custom_for_loop" id="=7mdPY[(cAaviMlAr7FY">        <field name="VAR">i</field>        <field name="START">variable1</field>        <field name="END">variable2</field>      </block>    </next>  </block></xml>';
+    var parser = new DOMParser();
+    var xmlDoc = parser.parseFromString(xmlString, "text/xml");
+
+    // Load the blocks into the Blockly workspace
+    Blockly.Xml.domToWorkspace(xmlDoc, workspace);
+});
+*/
