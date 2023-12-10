@@ -9,7 +9,12 @@ Blockly.JavaScript['disable_relay'] = function (block) {
 };
 
 Blockly.JavaScript['read_dht'] = function (block) {
-    var code = `read_dht`;
+    var code = `DHT_humid`;
+    return [code, Blockly.JavaScript.ORDER_ATOMIC];
+};
+
+Blockly.JavaScript['read_dht'] = function (block) {
+    var code = `DHT_temp`;
     return [code, Blockly.JavaScript.ORDER_ATOMIC];
 };
 

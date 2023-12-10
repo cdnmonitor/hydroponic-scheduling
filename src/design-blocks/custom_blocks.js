@@ -18,10 +18,19 @@ Blockly.Blocks['disable_relay'] = {
     }
 };
 
-Blockly.Blocks['read_dht'] = {
+Blockly.Blocks['dht_humid'] = {
     init: function () {
         this.appendDummyInput()
-            .appendField("Read DHT");
+            .appendField("Read DHT Humidity");
+        this.setOutput(true, "Number");  // This block outputs a value of type "Number"
+        this.setColour(60);  // Adjust color as needed
+    }
+};
+
+Blockly.Blocks['dht_temp'] = {
+    init: function () {
+        this.appendDummyInput()
+            .appendField("Read DHT Temperature");
         this.setOutput(true, "Number");  // This block outputs a value of type "Number"
         this.setColour(60);  // Adjust color as needed
     }
